@@ -22,7 +22,6 @@ void vec_2D (vec *dr[N]) {
 void crea_reticolo(vec *r, double L) {
     int n = cbrt(N);
     float L_cella = L / n;
-    LOG(L_cella);
     int cont = 0;//contatore coordinata particella (fino a 3N)
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
@@ -37,19 +36,19 @@ void crea_reticolo(vec *r, double L) {
 }
 void stampa_stato(vec *r, vec *v, vec *F){
     for (int i = 0; i < N; ++i) {
-        cout<<"i = "<<i<<endl;
-        cout<<"rx = "<<r[i].x<<endl;
-        cout<<"vx = "<<v[i].x<<endl;
-        cout<<"fx = "<<F[i].x<<"\n"<<endl;
+        cout << "i = " << i << endl;
+        cout << "rx = " << r[i].x << endl;
+        cout << "vx = " << v[i].x << endl;
+        cout << "fx = " << F[i].x << "\n" << endl;
 
-        cout<<"ry = "<<r[i].y<<endl;
-        cout<<"vy = "<<v[i].y<<endl;
-        cout<<"fy = "<<F[i].y<<"\n"<<endl;
+        cout << "ry = " << r[i].y << endl;
+        cout << "vy = " << v[i].y << endl;
+        cout << "fy = " << F[i].y << "\n" << endl;
 
-        cout<<"rz = "<<r[i].z<<endl;
-        cout<<"vz = "<<v[i].z<<endl;
-        cout<<"fz = "<<F[i].z<<"\n"<<endl;
-        cout<<"\n"<<endl;
+        cout << "rz = " << r[i].z << endl;
+        cout << "vz = " << v[i].z << endl;
+        cout << "fz = " << F[i].z << "\n" << endl;
+        cout << "\n" << endl;
     }
 }
 void stampa_coord(vec *r) {
@@ -102,19 +101,25 @@ void cerca_vicini(vec *r, vec **dr, double L) {
     }
 }
 void F_LJ(vec *r, vec *dr[N], vec *F, double L) {
-    cerca_vicini(r, dr, L);
-
     for (int i = 0; i < N; ++i) {
         F[i].uguale(0);
+    }
+    cerca_vicini(r, dr, L);
+    for (int i = 0; i < N; ++i) {
         for (int j = i + 1; j < N; j++) {
             double r_mod = dr[i][j].mod();
 
-            if (r_mod < L) {//r_c
-                double cost = 24 * (pow(r_mod, -8) - 2 * pow(r_mod, -14));
+            if (r_mod < 3.0) {//r_c
+                //double cost = 24 * (pow(r_mod, -8) - 2 * pow(r_mod, -14));
+                double cost = 24 * 2 * pow(r_mod, -14);
 
                 F[i].x += dr[i][j].x * cost;
                 F[i].y += dr[i][j].y * cost;
                 F[i].z += dr[i][j].z * cost;
+
+                F[j].x += -dr[i][j].x * cost;
+                F[j].y += -dr[i][j].y * cost;
+                F[j].z += -dr[i][j].z * cost;
             }
         }
     }
@@ -123,30 +128,25 @@ void vel_verlet(double t, vec *r, vec *dr[], vec *v, vec *F, double dt, double L
     vec F_old[N]; double v_mod;
 
     for (int i = 0; i < N; ++i) {
-        F_old[i].x = F[i].x;
-        F_old[i].y = F[i].y;
-        F_old[i].z = F[i].z;
+        v[i].x += 0.5 * dt * F[i].x;
+        v[i].y += 0.5 * dt * F[i].y;
+        v[i].z += 0.5 * dt * F[i].z;
 
-        r[i].x += v[i].x * dt + 0.5 * F_old[i].x * dt * dt;
-        r[i].y += v[i].y * dt + 0.5 * F_old[i].y * dt * dt;
-        r[i].z += v[i].z * dt + 0.5 * F_old[i].z * dt * dt;
+        r[i].x += v[i].x * dt;
+        r[i].y += v[i].y * dt;
+        r[i].z += v[i].z * dt;
 
         //sposto dentro alla scatola
         r[i].x -= L * rint(r[i].x / L);
         r[i].y -= L * rint(r[i].y / L);
         r[i].z -= L * rint(r[i].z / L);
     }
-
     F_LJ(r, dr, F, L);
-
-    //stampa_stato(r,v,F);
-
     for (int i = 0; i < N; ++i) {
-        v[i].x += 0.5 * dt * (F_old[i].x + F[i].x);
-        v[i].y += 0.5 * dt * (F_old[i].y + F[i].y);
-        v[i].z += 0.5 * dt * (F_old[i].z + F[i].z);
+        v[i].x += 0.5 * dt * F[i].x;
+        v[i].y += 0.5 * dt * F[i].y;
+        v[i].z += 0.5 * dt * F[i].z;
 
-        v_mod = v[i].mod();
-        *K += 0.5 * v_mod * v_mod;
     }
+    t+=dt;
 }

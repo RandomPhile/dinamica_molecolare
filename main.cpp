@@ -12,8 +12,7 @@ int main() {
     vec_2D(dr);//crea "vec" bidimensionale
 
     int caso = 0;
-
-    double rho[] = {0.01, 0.8, 1.2};
+    double rho[] = {0.01, 0.7, 1.2};
     double sigma[] = {1.1, 1.05, 1.05};
     double L = cbrt(N / rho[caso]); //larghezza lato
 
@@ -21,17 +20,19 @@ int main() {
     double dt = 0.1;
     int N_t = (t1 - t) / dt;
     crea_reticolo(r, L); //modifica r
-    //r[0].uguale(0.1);
+
+    crea_reticolo(v, 0);
 
     distr_gauss(v, sigma[caso]);
     vel_media_0(v);
 
     F_LJ(r, dr, F, L);//calcola forze F[3N]
 
+    stampa_coord(F);
+
     double K = 0, V = 0, T;
     for (int i = 0; i < N_t; ++i) {//tempo
         K = 0;
-        t += dt;
 
         //K *= i + 1;
 
@@ -40,10 +41,14 @@ int main() {
         //K /= i + 2;
         //LOG(K)
 
+        for (int i = 0; i < N; ++i) {
+            double v_mod = v[i].mod();
+            K += 0.5 * v_mod * v_mod;
+        }
+
         T = 2.0 * K / (3.0 * N);
         LOG(T)
     }
-
 
     return 0;
 }
