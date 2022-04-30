@@ -19,42 +19,46 @@ void vec_2D (vec *dr[N]) {
     for (int i = 0; i < N; ++i)
         dr[i] = new vec[N];
 }
-// void stampa_stato(vec *r, vec *v, vec *F){
-//     for (int i = 0; i < N; ++i) {
-//         cout << "i = " << i << endl;
-//         cout << "rx = " << r[i].x << endl;
-//         cout << "vx = " << v[i].x << endl;
-//         cout << "fx = " << F[i].x << "\n" << endl;
+void stampa_stato(vec *r, vec *v, vec *a) {
+    for (int i = 0; i < N; ++i) {
+        cout << "i = " << i << endl;
+        cout << "rx = " << r[i].x << endl;
+        cout << "vx = " << v[i].x << endl;
+        cout << "ax = " << a[i].x << "\n" << endl;
 
-//         cout << "ry = " << r[i].y << endl;
-//         cout << "vy = " << v[i].y << endl;
-//         cout << "fy = " << F[i].y << "\n" << endl;
+        cout << "ry = " << r[i].y << endl;
+        cout << "vy = " << v[i].y << endl;
+        cout << "ay = " << a[i].y << "\n" << endl;
 
-//         cout << "rz = " << r[i].z << endl;
-//         cout << "vz = " << v[i].z << endl;
-//         cout << "fz = " << F[i].z << "\n" << endl;
-//         cout << "\n" << endl;
-//     }
-// }
+        cout << "rz = " << r[i].z << endl;
+        cout << "vz = " << v[i].z << endl;
+        cout << "az = " << a[i].z << "\n" << endl;
+        cout << "\n" << endl;
+    }
+}
 void stampa_coord(vec *r) {
     for (int i = 0; i < N; ++i) {
-        cout << r[i].x << "\t" << r[i].y << "\t" << r[i].z << "\t" << endl;
+        cout << "i = " << r[i].x << "\t" << r[i].y << "\t" << r[i].z << "\t" << endl;
     }
-    LOG("\n\n");
+    LOG("\n");
 }
 void distr_gauss(vec *x, double sigma) {
+    //Formule di Box-Muller
     for (int i = 0; i < N; ++i) {
         double x1, x2;
         x1 = rand() / ((double)RAND_MAX + 1.0);
         x2 = rand() / ((double)RAND_MAX + 1.0);
+
         x[i].x = sigma * sqrt(-2 * log(1 - x2)) * cos(2 * M_PI * x1);
         x[i].y = sigma * sqrt(-2 * log(1 - x2)) * sin(2 * M_PI * x1);
+
         x1 = rand() / ((double)RAND_MAX + 1.0);
         x2 = rand() / ((double)RAND_MAX + 1.0);
+
         x[i].z = sigma * sqrt(-2 * log(1 - x2)) * cos(2 * M_PI * x1);
     }
 }
-void vel_media_0(vec *v) {
+void v_cm_0(vec *v) {
     vec v_cm = {.x = 0, .y = 0, .z = 0};
     for (int i = 0; i < N; ++i) {
         v_cm.x += v[i].x;
@@ -68,85 +72,31 @@ void vel_media_0(vec *v) {
         v[i].z -= v_cm.z;
     }
 }
-void F_osc(vec *r, vec *F) {
-    // for (int i = 0; i < N; ++i) {
-    //     F[i].uguale(0);
-    // }
-    for (int i = 0; i < N; ++i) {//particella i=1..N
-        F[i].x = -r[i].x;
-        F[i].x = -r[i].x;
-        F[i].x = -r[i].x;
-    }
-}
-void vel_verlet(double t, vec *r, vec *v, vec *F, double dt, double *K, double *V) {
-    vec F_old[N]; double v_mod; double r_mod;
-    *K = 0; *V = 0;
-
+void plot_v_hist(vec *v) {
+    //usare N grande
+    double v_min = 1e100;
+    double v_max = 0;
+    double v_mod[N];
     for (int i = 0; i < N; ++i) {
-        //velocità
-        v[i].x += 0.5 * dt * (F[i].x);
-        v[i].y += 0.5 * dt * (F[i].y);
-        v[i].z += 0.5 * dt * (F[i].z);
-
-        //posizione
-        r[i].x += v[i].x * dt;
-        r[i].y += v[i].y * dt;
-        r[i].z += v[i].z * dt;
+        v_mod[i] = v[i].mod();
+        if (v_mod[i] < v_min) {
+            v_min = v_mod[i];
+        } else if (v_mod[i] > v_max) {
+            v_max = v_mod[i];
+        }
     }
-    //forze
-    //F_osc(r, F);
-    for (int i = 0; i < N; ++i) {//particella i=1..N
-        double r_mod = r[i].mod();
-
-        F[i].x = -r[i].x;
-        F[i].x = -r[i].x;
-        F[i].x = -r[i].x;
-    }
-    for (int i = 0; i < N; ++i) {
-        //velocità
-        v[i].x += 0.5 * dt * F[i].x;
-        v[i].y += 0.5 * dt * F[i].y;
-        v[i].z += 0.5 * dt * F[i].z;
-
-        //osservabili fisiche
-        r_mod = r[i].mod();
-        v_mod = v[i].mod();
-        *V += 0.5 * r_mod * r_mod;
-        *K += 0.5 * v_mod * v_mod;
-    }
-}
-void vel_verlet2(double t, vec *r, vec *v, vec *F, double dt, double *K, double *V) {
-    vec F_old[N]; double v_mod; double r_mod;
-    *K = 0; *V = 0;
-
-    for (int i = 0; i < N; ++i) {
-        //posizione
-        r[i].x += v[i].x * dt + 0.5 * F[i].x * dt * dt;
-        r[i].y += v[i].y * dt + 0.5 * F[i].y * dt * dt;
-        r[i].z += v[i].z * dt + 0.5 * F[i].z * dt * dt;
-    }
-    for (int i = 0; i < N; ++i) {
-        //velocità
-        v[i].x += 0.5 * dt * F[i].x;
-        v[i].y += 0.5 * dt * F[i].y;
-        v[i].z += 0.5 * dt * F[i].z;
-    }
-    for (int i = 0; i < N; ++i) {
-        F[i].x = -r[i].x;
-        F[i].x = -r[i].x;
-        F[i].x = -r[i].x;
-    }
-    for (int i = 0; i < N; ++i) {
-        //velocità
-        v[i].x += 0.5 * dt * F[i].x;
-        v[i].y += 0.5 * dt * F[i].y;
-        v[i].z += 0.5 * dt * F[i].z;
-    }
-    for (int i = 0; i < N; ++i) {
-        //osservabili fisiche
-        r_mod = r[i].mod();
-        v_mod = v[i].mod();
-        *V += 0.5 * r_mod * r_mod;
-        *K += 0.5 * v_mod * v_mod;
+    int N_v = 1 + 3.322 * log(N); //Sturge's Rule
+    double v_step = (v_max - v_min) / N_v;
+    double bins;
+    double f_v;
+    for (int j = 0; j < N_v; ++j) {
+        bins = v_min + v_step * j;
+        f_v = 0;
+        for (int i = 0; i < N; ++i) {
+            if (v_mod[i] >= bins && v_mod[i] < (bins + v_step)) {
+                f_v++;
+            }
+        }
+        dati << bins << "\t" << f_v << endl;
     }
 }
