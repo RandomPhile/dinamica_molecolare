@@ -69,12 +69,10 @@ void vel_media_0(vec *v) {
     }
 }
 void F_osc(vec *r, vec *F) {
-    for (int i = 0; i < N; ++i) {
-        F[i].uguale(0);
-    }
+    // for (int i = 0; i < N; ++i) {
+    //     F[i].uguale(0);
+    // }
     for (int i = 0; i < N; ++i) {//particella i=1..N
-        double r_mod = r[i].mod();
-
         F[i].x = -r[i].x;
         F[i].x = -r[i].x;
         F[i].x = -r[i].x;
@@ -122,21 +120,29 @@ void vel_verlet2(double t, vec *r, vec *v, vec *F, double dt, double *K, double 
     *K = 0; *V = 0;
 
     for (int i = 0; i < N; ++i) {
-        //salvo la forza corrente
-        F_old[i] = F[i];
         //posizione
-        r[i].x += v[i].x * dt + 0.5 * F_old[i].x * dt * dt;
-        r[i].y += v[i].y * dt + 0.5 * F_old[i].y * dt * dt;
-        r[i].z += v[i].z * dt + 0.5 * F_old[i].z * dt * dt;
+        r[i].x += v[i].x * dt + 0.5 * F[i].x * dt * dt;
+        r[i].y += v[i].y * dt + 0.5 * F[i].y * dt * dt;
+        r[i].z += v[i].z * dt + 0.5 * F[i].z * dt * dt;
     }
-    //forze
-    F_osc(r, F);
     for (int i = 0; i < N; ++i) {
         //velocità
-        v[i].x += 0.5 * dt * (F_old[i].x + F[i].x);
-        v[i].y += 0.5 * dt * (F_old[i].y + F[i].y);
-        v[i].z += 0.5 * dt * (F_old[i].z + F[i].z);
-
+        v[i].x += 0.5 * dt * F[i].x;
+        v[i].y += 0.5 * dt * F[i].y;
+        v[i].z += 0.5 * dt * F[i].z;
+    }
+    for (int i = 0; i < N; ++i) {
+        F[i].x = -r[i].x;
+        F[i].x = -r[i].x;
+        F[i].x = -r[i].x;
+    }
+    for (int i = 0; i < N; ++i) {
+        //velocità
+        v[i].x += 0.5 * dt * F[i].x;
+        v[i].y += 0.5 * dt * F[i].y;
+        v[i].z += 0.5 * dt * F[i].z;
+    }
+    for (int i = 0; i < N; ++i) {
         //osservabili fisiche
         r_mod = r[i].mod();
         v_mod = v[i].mod();

@@ -16,7 +16,7 @@ int main() {
         r[i].uguale(0);
     }
 
-    distr_gauss(v, 1.1);
+    distr_gauss(v, 1);
     //vel_media_0(v);
 
     F_osc(r, F);//calcola forze
