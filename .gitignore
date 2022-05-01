@@ -1,5 +1,6 @@
 *.xcodeproj
 *.dat
+*.xyz
 .DS_Store
 *.eps
 *.tmp
