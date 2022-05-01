@@ -24,7 +24,7 @@ do for [step=1:N_t] {
 	splot "coordinate.xyz" every ::n::n+N-1 u 2:3:4 pt 7 ps 1 title sprintf('step = %03.0f    t = %f',step,(n-1)*dt/N),\
 		  "coordinate.xyz" every ::n::n+N-1 u 2:3:4:1 w labels offset 2 title ""
 	n=n+N*skip
-	#pause pausa
+	pause pausa
 }
 
 

@@ -1,11 +1,16 @@
 #include "header.h"
 #include "funzioni.h"
 #include "es7.h"
+/* DA FARE:
+-aggiustare reticoli M=2,4
+-capire dimensioni scatola giuste
+*/
+
 
 /*** variabili globali ***/
 //CC, BCC, Fcc
 int M = 1; //1,2,4
-int N = M * pow(3, 3); //numero di particelle
+int N = M * pow(2, 3); //numero di particelle
 ofstream dati, coord, vel, gnuplot;
 
 int main() {
@@ -18,10 +23,13 @@ int main() {
     double L = cbrt(N / rho[caso]);
     double r_c = L / 2; //
 
-    double t = 0, t1 = 9;
-    double dt = 0.01;
+    double pausa = 0.5;
+    int N_step = 1;
+    
+    double t = 0, t1 = 1;
+    double dt = 0.001;
     int N_t = (t1 - t) / dt;
-
+    int skip = rint(N_t / N_step);if (skip==0){skip=1;}
 
     crea_reticolo(r, L);
     //r[0].uguale(1);
@@ -42,28 +50,21 @@ int main() {
     vel.open("vel.xyz");
     gnuplot.open("gnuplot.dat");
 
-    //24220
-    double durata = 5;//secondi
-    double pausa;
-    int skip;
-    int N_step;
-
-    double frequenza = N_t / durata; //# al secondo
-    //però ci metto 0.01s a stamparne 1
-    cout << "frequenza = " << frequenza << endl;
-    if (frequenza < 20) {
-        durata -= 0.01 * N_t; //tempo rimasto
-        pausa = durata / N_t;
-        skip = 1;
-        N_step = N_t;
-    } else {
-        pausa = 0;
-        N_step = 100 * durata;
-        skip = rint(N_t / N_step);
-    }
-
     gnuplot << N << "\n" << N_step << "\n" << L << "\n" << pausa << "\n" << skip << "\n" << dt << endl;
-    cout << N << "\n" << N_step << "\n" << L << "\n" << pausa << "\n" << skip << endl;
+    
+    cout<<"M      = "<<M<<endl;
+    cout<<"N      = "<<N<<endl;
+    cout<<"caso   = "<<caso<<endl;
+    cout<<"rho    = "<<rho[caso]<<endl;
+    cout<<"L      = "<<L<<endl;
+    cout<<"t1     = "<<t1<<endl;
+    cout<<"dt     = "<<dt<<endl;
+    cout<<"N_t    = "<<N_t<<endl;
+    cout<<"N_step = "<<N_step<<endl;
+    cout<<"skip   = "<<skip<<endl;
+    cout<<"pausa  = "<<pausa<<endl;
+    LOG("\n\n\n");
+
 
     coord << N << endl;
     vel << N << endl;
