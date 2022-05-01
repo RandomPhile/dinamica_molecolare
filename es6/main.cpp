@@ -3,7 +3,7 @@
 #include "es6.h"
 
 /*** variabili globali ***/
-int N = 100; //numero di particelle
+int N = 100; //numero di particelle (meglio >100)
 ofstream dati;
 
 int main() {
