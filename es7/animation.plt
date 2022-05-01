@@ -24,8 +24,10 @@ set object 6 polygon from 0,0,L to L,0,L to L,L,L to 0,L,L to 0,0,L fillcolor rg
 n = 1
 do for [step=1:N_t] {
 	#set output sprintf('png/animation%03.0f.png',step)
-	splot "coordinate.xyz" every ::n::n+N-1 u 2:3:4 pt 7 ps 1 title sprintf('step = %03.0f    t = %f',step,skip*dt+(n-1)*dt/N)
-	#	  "coordinate.xyz" every ::n::n+N-1 u 2:3:4:1 w labels offset 2 title ""
+	splot "coordinate.xyz" every ::n::n+N-1 u 2:3:4 pt 7 ps 0.5 lc rgb "red" title sprintf('step = %03.0f    t = %f',step,skip*dt+(n-1)*dt/N),\
+		  "coordinate.xyz" every ::n::n+N-1 u 2:3:4:5:6:7 with vectors filled head lw 2 lc rgb "blue" title ""
+	     # "coordinate.xyz" every ::n::n+N-1 u 2:3:4:1 w labels offset 2 title ""
+	
 	n=n+N*skip
 	pause pausa
 }

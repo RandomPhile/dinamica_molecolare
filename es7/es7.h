@@ -1,12 +1,11 @@
 #include "header.h"
 void crea_reticolo(vec *r, double L) {
-    int n = cbrt(N/M);
+    int n = cbrt(N / M);
     float a = L / cbrt(N / M);
     int cont = 0;//contatore coordinata particella (fino a 3N)
 
     double b[][3] = {{0, 0, 0}, {0.5, 0.5, 0}, {0.5, 0, 0.5}, {0, 0.5, 0.5}};
-    if (M==2) {
-        LOG(b[1][2])
+    if (M == 2) {
         b[1][2] = 0.5;
     }
     for (int i = 0; i < n; ++i) {
@@ -81,6 +80,28 @@ void vel_verlet(vec *r, vec *v, vec *a, double dt, double r_c, double L, double 
         r[i].x += v[i].x * dt + 0.5 * dt * dt * a[i].x;
         r[i].y += v[i].y * dt + 0.5 * dt * dt * a[i].y;
         r[i].z += v[i].z * dt + 0.5 * dt * dt * a[i].z;
+
+        //cout << i << "\t" << r[i].x << "\t" << round(r[i].x / L) << endl;
+        while (r[i].x < 0) {
+            r[i].x += L;
+        }
+        while (r[i].x > L) {
+            r[i].x -= L;
+        }
+        
+        while (r[i].y < 0) {
+            r[i].y += L;
+        }
+        while (r[i].y > L) {
+            r[i].y -= L;
+        }
+
+        while (r[i].z < 0) {
+            r[i].z += L;
+        }
+        while (r[i].z > L) {
+            r[i].z -= L;
+        }
     }
     a_LJ(r, a, r_c, L);
     for (int i = 0; i < N; ++i) {

@@ -36,6 +36,20 @@ void stampa_stato(vec *r, vec *v, vec *a) {
         cout << "\n" << endl;
     }
 }
+void stampa_costanti(int M, int N, int caso, double *rho, double L, double t1, double dt, int N_t, int N_step, int skip, double pausa) {
+    cout << "M      = " << M << endl;
+    cout << "N      = " << N << endl;
+    cout << "caso   = " << caso << endl;
+    cout << "rho    = " << rho[caso] << endl;
+    cout << "L      = " << L << endl;
+    cout << "t1     = " << t1 << endl;
+    cout << "dt     = " << dt << endl;
+    cout << "N_t    = " << N_t << endl;
+    cout << "N_step = " << N_step << endl;
+    cout << "skip   = " << skip << endl;
+    cout << "pausa  = " << pausa << endl;
+    cout << "\n" << endl;
+}
 void stampa_coord(vec *r) {
     for (int i = 0; i < N; ++i) {
         cout << "#" << i << "\t" << r[i].x << "\t" << r[i].y << "\t" << r[i].z << "\t" << endl;
