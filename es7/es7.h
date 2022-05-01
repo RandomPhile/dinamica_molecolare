@@ -1,20 +1,24 @@
 #include "header.h"
 void crea_reticolo(vec *r, double L) {
-    int n = cbrt(N);
-    float L_cella = L / cbrt(N / M);
+    int n = cbrt(N/M);
+    float a = L / cbrt(N / M);
     int cont = 0;//contatore coordinata particella (fino a 3N)
 
-    double a[] = {0, 0, 0, 0.5, 0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0.5};
-    if (M == 2) {
-        a[5] = 0.5;
+    double b[][3] = {{0, 0, 0}, {0.5, 0.5, 0}, {0.5, 0, 0.5}, {0, 0.5, 0.5}};
+    if (M==2) {
+        LOG(b[1][2])
+        b[1][2] = 0.5;
     }
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             for (int k = 0; k < n; ++k) {
-                r[cont].x = i * L_cella;
-                r[cont].y = j * L_cella;
-                r[cont].z = k * L_cella;
-                cont++;
+                vec R = {.x = i * a, .y = j * a, .z = k * a};
+                for (int l = 0; l < M; ++l) {
+                    r[cont].x = R.x + b[l][0] * a;
+                    r[cont].y = R.y + b[l][1] * a;
+                    r[cont].z = R.z + b[l][2] * a;
+                    cont++;
+                }
             }
         }
     }

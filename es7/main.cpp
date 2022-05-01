@@ -1,6 +1,7 @@
 #include "header.h"
 #include "funzioni.h"
 #include "es7.h"
+
 /* DA FARE:
 -aggiustare reticoli M=2,4
 -capire dimensioni scatola giuste
@@ -9,11 +10,12 @@
 
 /*** variabili globali ***/
 //CC, BCC, Fcc
-int M = 1; //1,2,4
-int N = M * pow(2, 3); //numero di particelle
+int M = 2; //1,2,4
+int N = M * pow(3, 3); //numero di particelle
 ofstream dati, coord, vel, gnuplot;
 
 int main() {
+    LOG(N/M);
     srand(4);//default seed = 1
     struct vec r[N], v[N], a[N];
 
@@ -22,13 +24,14 @@ int main() {
     double sigma[] = {1.03, 1.12, 1};
     double L = cbrt(N / rho[caso]);
     double r_c = L / 2; //
-
-    double pausa = 0.5;
-    int N_step = 1;
     
-    double t = 0, t1 = 1;
+    double t = 0, t1 = 4;
     double dt = 0.001;
     int N_t = (t1 - t) / dt;
+
+    double pausa = 0;
+    int N_step = 40;
+    if (N_step>N_t){N_step=N_t;}
     int skip = rint(N_t / N_step);if (skip==0){skip=1;}
 
     crea_reticolo(r, L);
@@ -71,8 +74,13 @@ int main() {
 
     double K = 0, V = 0, E = 0, T = 0;
     double K_c = 0, V_c = 0;
-
+    cout<<"\n<";
+    int prog = 0;
     for (int i = 0; i < N_t; ++i) {//tempo
+        if (i>=prog) {
+            cout<<"="<<i*100.0/N_t<<"% ";
+            prog += N_t/10.0;
+        }
         K_c = K_c * (i + 1.0);
         V_c = V_c * (i + 1.0);
         for (int p = 0; p < N; ++p) {
@@ -93,7 +101,6 @@ int main() {
         dati << t << "\t" << K_c << "\t" << V_c << "\t" << E << "\t" << T << endl;
         t += dt;
     }
-
     dati.close();
     coord.close();
     vel.close();
