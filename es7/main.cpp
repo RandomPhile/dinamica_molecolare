@@ -40,8 +40,6 @@ int main() {
     double T_req = 1.1;
     double rho[] = {0.01, 0.8, 1.2};
 
-    // double sigma[] = {1.04, 1.1, 1.5};//nota: per il caso rho=1.2, la temp. non converge mai a 1.1
-
     double L = cbrt(N / rho[caso]);
     double r_c = L / 2;
 
@@ -53,13 +51,12 @@ int main() {
     crea_reticolo(r, L);
     LOG(L / cbrt(N / M));
     // r[0].uguale(0.1*L / cbrt(N / M));//la differenza è minuscola, ma è per non trascurare
-    // crea_reticolo(v, 0);//v_i nulle
     crea_reticolo(a, 0);
-    vec a_prev[N], *dr[N]; vec_2D(dr, N);
-    a_LJ(r, a, dr, r_c, L);
 
     distr_gauss(v, sigma[reticolo][caso]);
-    //stampa_stato(r,v,a);
+
+    vec *dr[N]; vec_2D(dr, N);
+    a_LJ(r, a, dr, r_c, L);
 
     dati.open("dati.dat");
     coord.open("coordinate.xyz");
@@ -76,7 +73,7 @@ int main() {
     for (int i = 0; i < N_t; ++i) {//tempo
         K_c = K_c * (i + 1.0);
         V_c = V_c * (i + 1.0);
-        W_c = V_c * (i + 1.0);
+        W_c = W_c * (i + 1.0);
 
         if (animazione == 1) {
             for (int p = 0; p < N; ++p) {
@@ -87,7 +84,7 @@ int main() {
         v_cm_0(v);
         K_c = (K_c + K) / (i + 2.0);
         V_c = (V_c + V) / (i + 2.0);
-        W_c = (V_c + V) / (i + 2.0);
+        W_c = (W_c + W) / (i + 2.0);
 
         T = 2.0 * K_c / (3.0 * N);
         P = rho[caso] * (1 + W_c / (3.0 * T_req)); //P su T_req
