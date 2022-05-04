@@ -8,7 +8,6 @@ while read line; do
 	param[$i]=$line
 	i=$i+1
 done < gnuplot.dat
-echo ${param[0]}
 
 case ${param[0]} in
 
@@ -17,6 +16,6 @@ case ${param[0]} in
 		;;
 
 	1)
-		gnuplot -e "N=${param[1]}" -e "N_t=${param[2]}" -e "L=${param[3]}" -e "pausa=${param[4]}" -e "skip=${param[5]}" -e "dt=${param[6]}" "animation.plt"	
+		gnuplot -e "N=${param[1]}" -e "N_step=${param[2]}" -e "L=${param[3]}" -e "pausa=${param[4]}" -e "skip=${param[5]}" -e "dt=${param[6]}" "animation.plt"	
 		;;
 esac

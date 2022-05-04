@@ -5,77 +5,100 @@
 /* DA FARE:
 -aggiustare reticoli M=2,4
 -capire dimensioni scatola giuste
+-potenziale esplode per caso = 1,2
+*/
+/* NOTE:
+-se K o V esplodono molto probabilmente dt è troppo grande
+-per stimare sigma t.c. T=1.1, uso N grande ()
 */
 
-
 /*** variabili globali ***/
-//CC, BCC, Fcc
-int M = 2; //1,2,4
-int N = M * pow(2, 3); //numero di particelle
+//CC, BCC, FCC
+int M = 1; //1,2,4
+int N = M * pow(5, 3); //numero di particelle
 ofstream dati, coord, gnuplot;
 
 int main() {
-    int reticolo = 0;
-    srand(2);//default seed = 1
+    srand(1);//default seed = 1
+    int caso       = 0;//tre valori di pressione diversi
+    double dt      = 0.001;//passo temporale
+    double t1      = 5;//durata simulazione
+
+    double sigma[3][3] = {{0.951309, 1, 1},//CC
+        {0.951309, 1, 1},//BCC
+        {0.951309, 1, 1}//FCC
+    };
+
+    int animazione = 0;//0: grafici; 1: particelle
+    double pausa   = 0.1;
+    int N_step     = 10;
+    double scala_v = 0.2;
+    //###################################################
     struct vec r[N], v[N], a[N];
+    int reticolo   = log2(M);
 
-    int caso = 0;
+    double T_req = 1.1;
     double rho[] = {0.01, 0.8, 1.2};
-    double sigma[] = {1.03, 1.12, 1};
+
+    // double sigma[] = {1.04, 1.1, 1.5};//nota: per il caso rho=1.2, la temp. non converge mai a 1.1
+
     double L = cbrt(N / rho[caso]);
-    double r_c = L / 2; //
+    double r_c = L / 2;
 
-    double t = 0, t1 = 2;
-    double dt = 0.001;
+    double t = 0;
     int N_t = (t1 - t) / dt;
-
-    double pausa = 0.001;
-    int N_step = 200;
     if (N_step > N_t) {N_step = N_t;}
     int skip = rint(N_t / N_step); if (skip == 0) {skip = 1;}
 
     crea_reticolo(r, L);
-    //r[0].uguale(1);
+    LOG(L / cbrt(N / M));
+    // r[0].uguale(0.1*L / cbrt(N / M));//la differenza è minuscola, ma è per non trascurare
     // crea_reticolo(v, 0);//v_i nulle
     crea_reticolo(a, 0);
+    vec a_prev[N], *dr[N]; vec_2D(dr, N);
+    a_LJ(r, a, dr, r_c, L);
 
-    a_LJ(r, a, r_c, L);
-
-    distr_gauss(v, sigma[caso]);
+    distr_gauss(v, sigma[reticolo][caso]);
     //stampa_stato(r,v,a);
 
     dati.open("dati.dat");
     coord.open("coordinate.xyz");
     gnuplot.open("gnuplot.dat");
 
-    gnuplot << reticolo << "\n" << N << "\n" << N_step << "\n" << L << "\n" << pausa << "\n" << skip << "\n" << dt << endl;
+    gnuplot << animazione << "\n" << N << "\n" << N_step << "\n" << L << "\n" << pausa << "\n" << skip << "\n" << dt << endl;
     coord << N << endl;
     stampa_costanti(M, N, caso, rho, L, t1, dt, N_t, N_step, skip, pausa);
 
-    double K = 0, V = 0, E = 0, T = 0;
-    double K_c = 0, V_c = 0;
+    double E = 0, T = 0, P = 0;
+    double K = 0, V = 0, W = 0;
+    double K_c = 0, V_c = 0, W_c = 0;
 
     for (int i = 0; i < N_t; ++i) {//tempo
         K_c = K_c * (i + 1.0);
         V_c = V_c * (i + 1.0);
+        W_c = V_c * (i + 1.0);
 
-        if (reticolo == 1) {
+        if (animazione == 1) {
             for (int p = 0; p < N; ++p) {
-                coord << "P" << p << "\t" << r[p].x << "\t" << r[p].y << "\t" << r[p].z << "\t" << v[p].x << "\t" << v[p].y << "\t" << v[p].z << endl;
+                coord << "P" << p << "\t" << r[p].x << "\t" << r[p].y << "\t" << r[p].z << "\t" << v[p].x*scala_v << "\t" << v[p].y*scala_v << "\t" << v[p].z*scala_v << endl;
             }
         }
-        vel_verlet(r, v, a, dt, r_c, L, &K, &V);
+        vel_verlet(r, v, a, dt, r_c, L, &K, &V, &W);
         v_cm_0(v);
         K_c = (K_c + K) / (i + 2.0);
         V_c = (V_c + V) / (i + 2.0);
-        //stampa_stato(r,v,a);
-        T = 2.0 * K_c / (3.0 * N);
-        E = K_c + V_c;
-        //LOG(V)
+        W_c = (V_c + V) / (i + 2.0);
 
-        dati << t << "\t" << K_c << "\t" << V_c << "\t" << E << "\t" << T << endl;
+        T = 2.0 * K_c / (3.0 * N);
+        P = rho[caso] * (1 + W_c / (3.0 * T_req)); //P su T_req
+
+        E = K + V;
+
+        dati << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << endl;
         t += dt;
     }
+
+    cout << "T = " << T << "\t\tNuovo sigma = " << sigma[reticolo][caso]*sqrt(T_req / T) << endl;
     dati.close();
     coord.close();
     gnuplot.close();
