@@ -15,22 +15,22 @@
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 1; //1,2,4
-int N = M * pow(5, 3); //numero di particelle
+int N = M * pow(4, 3); //numero di particelle
 ofstream dati, coord, gnuplot;
 
 int main() {
     srand(1);//default seed = 1
     int caso       = 0;//tre valori di pressione diversi
-    double dt      = 0.0001;//passo temporale
-    double t1      = 0.0002;//durata simulazione
+    double dt      = 0.01;//passo temporale
+    double t1      = 50;//durata simulazione
 
-    double sigma[3][3] = {{0.951309, 1, 1},//CC
+    double sigma[3][3] = {{1.037, 1, 1},//CC
         {0.951309, 1, 1},//BCC
         {0.951309, 1, 1}//FCC
     };
 
-    int animazione = 1;//0: grafici; 1: particelle
-    double pausa   = 0.5;
+    int animazione = 0;//0: grafici; 1: particelle
+    double pausa   = 1;
     int N_step     = 2;
     double scala_v = 0.2;
     //###################################################

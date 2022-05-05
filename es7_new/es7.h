@@ -19,7 +19,6 @@ void crea_reticolo(vec *r, double L) {
             }
         }
     }
-
 }
 
 double V_LJ(double r, double L) {
@@ -40,12 +39,16 @@ void a_LJ(vec *r, vec *a, vec *dr[] , double r_c, double L) {
             dr[i][j].y = r[i].y - r[j].y;
             dr[i][j].z = r[i].z - r[j].z;
 
-            // dr[i][j].x -= L * rint(dr[i][j].x / L);
-            // dr[i][j].y -= L * rint(dr[i][j].y / L);
-            // dr[i][j].z -= L * rint(dr[i][j].z / L);
-            // dr[j][i].x -= L * rint(dr[j][i].x / L);
-            // dr[j][i].y -= L * rint(dr[j][i].y / L);
-            // dr[j][i].z -= L * rint(dr[j][i].z / L);
+            if (dr[i][j].x < -L / 2) {dr[i][j].x += L;}
+            if (dr[i][j].x >= L / 2) {dr[i][j].x -= L;}
+            if (dr[i][j].y < -L / 2) {dr[i][j].y += L;}
+            if (dr[i][j].y >= L / 2) {dr[i][j].y -= L;}
+            if (dr[i][j].z < -L / 2) {dr[i][j].z += L;}
+            if (dr[i][j].z >= L / 2) {dr[i][j].z -= L;}
+
+            // dr[i][j].x += rint(dr[i][j].x * 1 / L) * L;
+            // dr[i][j].y += rint(dr[i][j].y * 1 / L) * L;
+            // dr[i][j].z += rint(dr[i][j].z * 1 / L) * L;
         }
 
         a[i].uguale(0);
@@ -53,7 +56,7 @@ void a_LJ(vec *r, vec *a, vec *dr[] , double r_c, double L) {
     for (int i = 0; i < N; ++i) {
         for (int j = i + 1; j < N; ++j) {
             double dr_mod = dr[i][j].mod();
-            if (dr_mod < r_c) {
+            if (dr_mod < r_c && dr_mod > 0.1) {
                 double cost = -24 * (pow(1 / dr_mod, 8) - 2 * pow(1 / dr_mod, 14));
                 a[i].x += dr[i][j].x * cost;
                 a[i].y += dr[i][j].y * cost;
@@ -77,21 +80,9 @@ void vel_verlet(vec *r, vec *v, vec *a, double dt, double r_c, double L, double 
         r[i].z += v[i].z * dt + 0.5 * dt * dt * a[i].z;
 
         //sposto dentro alla scatola
-        // r[i].x -= L * rint(r[i].x / L);
-        // r[i].y -= L * rint(r[i].y / L);
-        // r[i].z -= L * rint(r[i].z / L);
-
-        // r[i].x += L/2;
-        // r[i].y += L/2;
-        // r[i].z += L/2;
-
-        while (r[i].x > L) {r[i].x -= L;}
-        while (r[i].y > L) {r[i].y -= L;}
-        while (r[i].z > L) {r[i].z -= L;}
-
-        while (r[i].x < 0) {r[i].x += L;}
-        while (r[i].y < 0) {r[i].y += L;}
-        while (r[i].z < 0) {r[i].z += L;}
+        r[i].x -= L * floor(r[i].x / L);
+        r[i].y -= L * floor(r[i].y / L);
+        r[i].z -= L * floor(r[i].z / L);
 
         //copio le accelerazioni
         a_prev[i].x = a[i].x;
